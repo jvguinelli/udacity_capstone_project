@@ -1,0 +1,21 @@
+<html>
+    <body>
+        <p id="token_info"></p>
+        <script>
+            function copy_token() {
+                var copyText = document.getElementById("myInput");
+              
+                // Select the text field
+              
+                 // Copy the text inside the text field
+                navigator.clipboard.writeText(copyText.value);
+              
+                // Alert the copied text
+                alert("Copied the text: " + copyText.value);
+            }
+            var access_token = document.location.hash.split('#')[1].split('&')[0].replace('access_token=', '');
+            document.getElementById("token_info").innerHTML += "Token: " + access_token;
+            
+        </script>
+    </body>
+</html>
