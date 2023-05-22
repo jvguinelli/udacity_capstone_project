@@ -148,7 +148,6 @@ After the creation, the aplication will be deployed. When the service is ready, 
 
 ![App URL.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81r7mV7-YbjdvA5G1PrP2gOIDR4xR0a2CEEva0tzhDRMg2Bh8lwFDhn4cpFrOmz2twj3haP4U9ITQo2NQjB939EDlHeyVQ=s1600)
 
-
 ## API
 
 Base URL: `https://jvguinelli-service.onrender.com`
