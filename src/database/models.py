@@ -20,17 +20,8 @@ ownerships = db.Table(
 )
 
 
-class Company(db.Model):
-    __tablename__ = "companies"
-
-    id = db.Column(db.Integer, primary_key=True)
-    fiscal_number = db.Column(db.String, nullable=False, unique=True)
-    name = db.Column(db.String, nullable=False)
-
-    partners = db.relationship('Partner', secondary=ownerships, lazy=True,
-                               backref=db.backref('companies', lazy=True))
-    sanctions = db.relationship('Sanction', lazy=True,
-                                backref=db.backref('company', lazy=False))
+class DBModelInterface(db.Model):
+    __abstract__ = True
 
     def insert(self):
         db.session.add(self)
@@ -42,6 +33,19 @@ class Company(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+
+class Company(DBModelInterface):
+    __tablename__ = "companies"
+
+    id = db.Column(db.Integer, primary_key=True)
+    fiscal_number = db.Column(db.String, nullable=False, unique=True)
+    name = db.Column(db.String, nullable=False)
+
+    partners = db.relationship('Partner', secondary=ownerships, lazy=True,
+                               backref=db.backref('companies', lazy=True))
+    sanctions = db.relationship('Sanction', lazy=True,
+                                backref=db.backref('company', lazy=False))
 
     def format(self, partners_info=True, sanctions_info=True):
         company_dict = {
@@ -64,23 +68,12 @@ class Company(db.Model):
         return company_dict
 
 
-class Partner(db.Model):
+class Partner(DBModelInterface):
     __tablename__ = "partners"
 
     id = db.Column(db.Integer, primary_key=True)
     document = db.Column(db.String, nullable=False, unique=True)
     name = db.Column(db.String, nullable=False)
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
 
     def format(self, companies_info=True):
         partner_dict = {
@@ -99,24 +92,13 @@ class Partner(db.Model):
         return partner_dict
 
 
-class Sanction(db.Model):
+class Sanction(DBModelInterface):
     __tablename__ = "sanctions"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     organization = db.Column(db.String, nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'))
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
 
     def format(self):
         return {

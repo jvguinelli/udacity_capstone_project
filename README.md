@@ -28,6 +28,18 @@ Populate the database using the `database.psql` file. From the `capstone_project
 sudo -u postgres bash -c "psql capstone_project < database.psql"
 ```
 
+## Project Dependencies
+
+In order to run the project, it is necessary to install Python 3.8.x or later. Next, some important dependencies will be listed, and an explanation of how to install the remaining dependencies and set up the development environment will be provided.
+
+### Key Dependencies
+
+- [Flask](https://flask.palletsprojects.com/en/2.3.x/) a micro web framework used to create API's routes and handle requests.
+
+- [SQLAlchemy](https://www.sqlalchemy.org/) is the SQL toolkit and ORM used to interact with relational database.
+
+- [Gunicorn](https://gunicorn.org/) is a Python WSGI HTTP Server for UNIX. As Flask's built-in server is not suitable for production, gunicorn is is used to deploy the aplication.
+
 ## Set up the Development Environment
 
 1. To begin, please follow these instructions to install a virtual environment: [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
@@ -51,7 +63,7 @@ source ./bash.sh
 6. Navigate to `.src` and install the project`s dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 7. From within the `./capstone_project` folder, run:
@@ -65,6 +77,77 @@ export FLASK_APP=src;
 ```bash
 flask run --reload
 ```
+
+## How to Deploy the Project on Render
+
+First, it is necessary to create a Render acount on [this link](https://dashboard.render.com/register).
+
+After that, in [Render Dashboard](https://dashboard.render.com/), set up a Database Service with Postgres by clicking on `New -> PostgreSQL`:
+
+![Create Postgres service on Render.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81qJdMeBON2elZsedFeRBfqYmHjL-3tkYE_4WlwlMHWhVCZH-Yy-KBrxsjw-RceVS2z1xHTJ0naqKyAmNjHtc2XK0xvM=s1600)
+
+On the "New Postgres" page:
+
+1. Provide a name for the service
+
+![Provide service name.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81oRX5L64GBHEPq0qJz7za2M_wG-h4-EmRbjLgNqrpkugxwyVZc2amTU6jlCxc-GvmPc52IK-XT7RLV9Bdg0DiL3Y-6KoA=s1600)
+
+2. Select an `Free` instance 
+
+3. Click on Create Database
+
+![Create Database Service](https://lh3.googleusercontent.com/drive-viewer/AFGJ81r1iOQu2cpt5UhTbzJTtXVeGho_OPiwbAQMqYSsyLxST5vx8vkLMRYpMzNKrvaHwXmzxpDbRUnL34gc1B6nGWPMOyMe5g=s1600)
+
+Next, go back to [Render Dashboard](https://dashboard.render.com/) and create a new Web Service by clicking on `New -> Web Service`.
+
+![Create Web Service on Render.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81r11V2hx-uyLeKbWMIH2X-ph8Ha09t4V50jEOr2O2kxwOMkgWHzT5PkHNQPpOLB2oP-XZS8b06P9gqwdmXygH6IvISZuQ=s2560) 
+
+Provide the GitHub repo to the webservice:
+
+![Provide Github repo.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81qbOGgUjFJyq_Ituiz9ocsSdEW8FlOV_C-qmMPcvXpKqzPOoTaoCz5TCiaeOgiY0ynR6A1MBo65_4-DvtbpgWRtDMJX=s1600)
+
+Provide de following informations: 
+
+1. A name for the service
+
+2. Select the branch `main`
+
+3. Runtime `Python3`
+
+4. Build Command `pip install -r requirements.txt`
+
+5. Start Command `gunicorn wsgi:app`
+
+![Info for web service creation.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81qUjsHdmk6wzNHp_p4A1_5-rppS8kPkIoNG79BTDRWV2rmKvVgVQ6gq8iquyg-6ozmw9oVF5qRF6_GqH3A0w5lWkuz3Ag=s1600)
+
+Before clicking in Create New Service it is is necessary to connect it to the Database Service. To do that, open a new browser's tab and go to the Database Service Info page an copy the External Database URL:
+
+![Copy database external URL.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81oB3R-Rsm5gE537IVpFVtytduYVUeDRXHiSLsPo04kW8TvAEauS-5M4K3d-in_i5iYRkIxfzCD8R6Xvqq9H05QEoOXNtw=s1600)
+
+After that, go back to the Web Service creation and create the folowing environment variables in `Advanced`:
+
+* SQLALCHEMY_DATABASE_URI: paste the database external URL
+
+* SQLALCHEMY_TRACK_MODIFICATIONS: `False`
+
+* AUTH0_DOMAIN: info from auth0 (`dev-g8ovzwsj4zhype80.us.auth0.com`)
+
+* API_AUDIENCE: info from auth0 (`capstone_project`)
+
+* ALGORITHMS: info from auth0 (`['RS256']`)
+
+* PYTHON_VERSION: Render installs python 3.7 by default. As we need python 3.8.x or latest, set the value to `3.8.10`.
+
+![Environment Variables.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81o8wZw5Qrrdak-pFz305nVR5yz6kwMtcLrw6rMtdDOI8x0_l3rBtABhJ20xN88EXP-s-WuXkJrnlvIzswSz78-9set6ew=s1600)
+
+Make sure you select a Free instance and click on `Create Web Service`.
+
+![Create Web Service.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81pKqOLr1kT3-h4lfRf7uPKYbYySG0_x5ynz48cDKjNi0WY5-Zdi4cAnw_EKpSFe0ZWwwxCZvK82AR2D4KE7qUlkLvxnuw=s1600)
+
+After the creation, the aplication will be deployed. When the service is ready, the application can be oppened on the browser by clicking the app URL.
+
+![App URL.](https://lh3.googleusercontent.com/drive-viewer/AFGJ81r7mV7-YbjdvA5G1PrP2gOIDR4xR0a2CEEva0tzhDRMg2Bh8lwFDhn4cpFrOmz2twj3haP4U9ITQo2NQjB939EDlHeyVQ=s1600)
+
 
 ## API
 
@@ -80,7 +163,7 @@ Endpoint: `/companies`
 
 Method: `GET`
 
-Description: Retrieves a list of all all companies in the database.
+Description: Retrieves a list of all companies in the database.
 
 Request: 
 
@@ -122,12 +205,12 @@ Content-Type: application/json
     }, 
     {
       "id": 2,
-      "fiscal_number": "53846386956648",
+      "fiscal_number": "53846386956649",
       "name": "ABC INDUSTRY", 
       "partners": [
         { 
           "id": 2,
-          "document": "14235717343", 
+          "document": "14235717345", 
           "name": "PEDRO COELHO"
         }
       ],
@@ -232,7 +315,7 @@ Endpoint: `/partners`
 
 Method: `GET`
 
-Description: Retrieves a list of all all partners in the database.
+Description: Retrieves a list of all partners in the database.
 
 Request: 
 
@@ -333,7 +416,7 @@ Endpoint: `/partners/{id}`
 
 Method: `PATCH`
 
-Description: Update information about a company in the database.
+Description: Update information about a partner in the database.
 
 Request: 
 
